@@ -19,6 +19,10 @@
     },
     "./package.json": "./package.json"
   },
+  "imports": {
+    "#main": "./src/main/index.ts",
+    "#main/*": "./src/main/*/index.ts"
+  },
   "files": [
     "dist",
     "README.md",

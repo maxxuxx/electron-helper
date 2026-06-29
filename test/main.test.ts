@@ -42,6 +42,27 @@ describe('main process helpers', () => {
     expect(process.env.NODE_ENV).toBe(originalNodeEnv);
   });
 
+  test('main enviroment route exports main process helpers', async () => {
+    const environmentModule = await import('../src/main/enviroment/index.js');
+
+    expect(environmentModule.isPackaged({ isPackaged: false })).toBe(false);
+    expect(environmentModule.isProduction({ isPackaged: true })).toBe(true);
+  });
+
+  test('main alias resolves enviroment helpers', async () => {
+    const environmentModule = await import('#main/enviroment');
+
+    expect(environmentModule.isPackaged({ isPackaged: false })).toBe(false);
+    expect(environmentModule.isProduction({ isPackaged: true })).toBe(true);
+  });
+
+  test('main index re-exports enviroment helpers', async () => {
+    const environmentModule = await import('../src/main/enviroment/index.js');
+
+    expect(isPackaged).toBe(environmentModule.isPackaged);
+    expect(isProduction).toBe(environmentModule.isProduction);
+  });
+
   test('root export re-exports main process helpers', () => {
     expect(isProductionFromRoot({ isPackaged: true })).toBe(true);
   });
