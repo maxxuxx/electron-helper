@@ -16,32 +16,37 @@ Use the `main` subpath from Electron's main process:
 
 ```ts
 import { app } from 'electron';
-import { isPackaged, isProduction } from 'electron-helper/main';
+import { configureEnvironment, isProduction } from 'electron-helper/main';
 
-console.log(isPackaged(app));
-console.log(isProduction(app));
+configureEnvironment(app);
+
+console.log(isProduction());
 ```
 
 The package does not depend on Electron. It accepts the Electron `app` object structurally, so consumers keep control over their Electron version.
 
 ## API
 
-### `isPackaged(app)`
+### `configureEnvironment(config)`
 
-Returns `app.isPackaged`.
+Registers an app-like object or lazy packaged-state resolver for parameterless environment checks.
 
 ```ts
-isPackaged({ isPackaged: true }); // true
-isPackaged({ isPackaged: false }); // false
+const restore = configureEnvironment({ isPackaged: true });
+
+isProduction(); // true
+
+restore();
 ```
 
-### `isProduction(app?)`
+### `isProduction(options?)`
 
-Returns `app.isPackaged` when an app-like object is provided. When no app is provided, it falls back to `process.env.NODE_ENV === 'production'`.
+Returns true when the configured or provided `isPackaged` value is true, or when `nodeEnv` is `production`.
 
 ```ts
 isProduction({ isPackaged: true }); // true
 isProduction({ isPackaged: false }); // false
+isProduction({ nodeEnv: 'production' }); // true
 ```
 
 ## Exports

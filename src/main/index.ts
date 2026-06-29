@@ -1,6 +1,7 @@
 export {
-  isPackaged,
+  configureEnvironment,
   isProduction,
-  type ElectronAppLike,
-  type OptionalElectronAppLike
+  type EnvironmentConfig,
+  type IsProductionOptions,
+  type PackagedState
 } from '#main/enviroment';
