@@ -3,4 +3,4 @@ export {
   isProduction,
   type ElectronAppLike,
   type OptionalElectronAppLike
-} from './main.js';
+} from './main/index.js';

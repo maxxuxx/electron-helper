@@ -13,9 +13,9 @@
       "require": "./dist/index.cjs"
     },
     "./main": {
-      "types": "./dist/main.d.ts",
-      "import": "./dist/main.js",
-      "require": "./dist/main.cjs"
+      "types": "./dist/main/index.d.ts",
+      "import": "./dist/main/index.js",
+      "require": "./dist/main/index.cjs"
     },
     "./package.json": "./package.json"
   },

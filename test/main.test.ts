@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'vitest';
 
 import { isProduction as isProductionFromRoot } from '../src/index.js';
-import { isPackaged, isProduction } from '../src/main.js';
+import { isPackaged, isProduction } from '../src/main/index.js';
 
 const originalNodeEnv = process.env.NODE_ENV;
 
