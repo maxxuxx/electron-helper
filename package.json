@@ -1,6 +1,6 @@
 {
   "name": "electron-helper",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Small helpers for Electron apps and modules.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -17,30 +17,99 @@
       "import": "./dist/main/index.js",
       "require": "./dist/main/index.cjs"
     },
-    "./main/env": {
-      "types": "./dist/main/env/index.d.ts",
-      "import": "./dist/main/env/index.js",
-      "require": "./dist/main/env/index.cjs"
+    "./main/app": {
+      "types": "./dist/main/app/index.d.ts",
+      "import": "./dist/main/app/index.js",
+      "require": "./dist/main/app/index.cjs"
+    },
+    "./main/app/single-instance": {
+      "types": "./dist/main/app/single-instance/index.d.ts",
+      "import": "./dist/main/app/single-instance/index.js",
+      "require": "./dist/main/app/single-instance/index.cjs"
     },
     "./main/path": {
       "types": "./dist/main/path/index.d.ts",
       "import": "./dist/main/path/index.js",
       "require": "./dist/main/path/index.cjs"
     },
+    "./main/path/electron": {
+      "types": "./dist/main/path/electron/index.d.ts",
+      "import": "./dist/main/path/electron/index.js",
+      "require": "./dist/main/path/electron/index.cjs"
+    },
+    "./main/shell": {
+      "types": "./dist/main/shell/index.d.ts",
+      "import": "./dist/main/shell/index.js",
+      "require": "./dist/main/shell/index.cjs"
+    },
+    "./main/shell/external": {
+      "types": "./dist/main/shell/external/index.d.ts",
+      "import": "./dist/main/shell/external/index.js",
+      "require": "./dist/main/shell/external/index.cjs"
+    },
     "./main/state": {
       "types": "./dist/main/state/index.d.ts",
       "import": "./dist/main/state/index.js",
       "require": "./dist/main/state/index.cjs"
     },
+    "./main/window": {
+      "types": "./dist/main/window/index.d.ts",
+      "import": "./dist/main/window/index.js",
+      "require": "./dist/main/window/index.cjs"
+    },
+    "./main/window/bounds": {
+      "types": "./dist/main/window/bounds/index.d.ts",
+      "import": "./dist/main/window/bounds/index.js",
+      "require": "./dist/main/window/bounds/index.cjs"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.js",
+      "require": "./dist/node/index.cjs"
+    },
+    "./node/env": {
+      "types": "./dist/node/env/index.d.ts",
+      "import": "./dist/node/env/index.js",
+      "require": "./dist/node/env/index.cjs"
+    },
+    "./node/env/load": {
+      "types": "./dist/node/env/load/index.d.ts",
+      "import": "./dist/node/env/load/index.js",
+      "require": "./dist/node/env/load/index.cjs"
+    },
+    "./node/env/read": {
+      "types": "./dist/node/env/read/index.d.ts",
+      "import": "./dist/node/env/read/index.js",
+      "require": "./dist/node/env/read/index.cjs"
+    },
+    "./node/path": {
+      "types": "./dist/node/path/index.d.ts",
+      "import": "./dist/node/path/index.js",
+      "require": "./dist/node/path/index.cjs"
+    },
+    "./node/path/current": {
+      "types": "./dist/node/path/current/index.d.ts",
+      "import": "./dist/node/path/current/index.js",
+      "require": "./dist/node/path/current/index.cjs"
+    },
+    "./node/path/resources": {
+      "types": "./dist/node/path/resources/index.d.ts",
+      "import": "./dist/node/path/resources/index.js",
+      "require": "./dist/node/path/resources/index.cjs"
+    },
     "./package.json": "./package.json"
   },
   "imports": {
     "#main": "./src/main/index.ts",
-    "#main/*": "./src/main/*/index.ts"
+    "#main/*": "./src/main/*/index.ts",
+    "#node": "./src/node/index.ts",
+    "#node/*": "./src/node/*/index.ts"
   },
   "files": [
     "dist",
     "README.md",
+    "src/main/**/README.md",
+    "src/node/**/README.md",
     "LICENSE"
   ],
   "sideEffects": false,
