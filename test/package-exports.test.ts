@@ -24,6 +24,13 @@ describe('package exports', () => {
     expect(packageJson.exports).toHaveProperty('./node/path/resources');
   });
 
+  test('exports updater bridge routes as canonical APIs', () => {
+    expect(packageJson.exports).toHaveProperty('./main/updater');
+    expect(packageJson.exports).toHaveProperty('./node/updater');
+    expect(packageJson.exports).toHaveProperty('./preload/updater');
+    expect(packageJson.exports).toHaveProperty('./renderer/updater');
+  });
+
   test('does not export replaced main env and Node-only path routes', () => {
     expect(packageJson.exports).not.toHaveProperty('./main/env');
     expect(packageJson.exports).not.toHaveProperty('./main/env/load');

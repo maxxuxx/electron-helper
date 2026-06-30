@@ -13,6 +13,7 @@ export default defineConfig({
     'main/shell/index': 'src/main/shell/index.ts',
     'main/shell/external/index': 'src/main/shell/external/index.ts',
     'main/state/index': 'src/main/state/index.ts',
+    'main/updater/index': 'src/main/updater/index.ts',
     'main/window/bounds/index': 'src/main/window/bounds/index.ts',
     'main/window/devtools/index': 'src/main/window/devtools/index.ts',
     'main/window/index': 'src/main/window/index.ts',
@@ -23,9 +24,14 @@ export default defineConfig({
     'node/path/index': 'src/node/path/index.ts',
     'node/path/current/index': 'src/node/path/current/index.ts',
     'node/path/resources/index': 'src/node/path/resources/index.ts',
-    'node/index': 'src/node/index.ts'
+    'node/updater/index': 'src/node/updater/index.ts',
+    'node/index': 'src/node/index.ts',
+    'preload/updater/index': 'src/preload/updater/index.ts',
+    'preload/index': 'src/preload/index.ts',
+    'renderer/updater/index': 'src/renderer/updater/index.ts',
+    'renderer/index': 'src/renderer/index.ts'
   },
-  external: ['dotenv', 'electron'],
+  external: ['dotenv', 'electron', 'electron-updater'],
   format: ['esm', 'cjs'],
   outExtension({ format }) {
     return {

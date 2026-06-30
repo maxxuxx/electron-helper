@@ -9,6 +9,7 @@ import {
   getEnv,
   isProduction,
   quitWhenAllWindowsClosed,
+  registerUpdaterBridge,
   resolveAppPath,
   setUseDevTools,
   setSingleInstance,
@@ -24,6 +25,7 @@ import {
 | `path` helpers | `electron-helper/main/path` | Electron app path helpers |
 | `shell` helpers | `electron-helper/main/shell` | Safe external URL open handler helpers |
 | `state` helpers | `electron-helper/main/state` | Electron runtime state helpers |
+| `updater` helpers | `electron-helper/main/updater` | Main-process updater bridge helpers |
 | `window` helpers | `electron-helper/main/window` | BrowserWindow visibility and focus helpers |
 
 ## Usage
@@ -35,6 +37,7 @@ import {
   createExternalOpenHandler,
   isProduction,
   quitWhenAllWindowsClosed,
+  registerUpdaterBridge,
   resolveAppPath,
   setUseDevTools,
   setSingleInstance,
@@ -47,6 +50,10 @@ let mainWindow: BrowserWindow | null = null;
 
 setSingleInstance(() => mainWindow);
 quitWhenAllWindowsClosed();
+registerUpdaterBridge({
+  autoDownload: false,
+  getWindows  : () => BrowserWindow.getAllWindows()
+});
 
 const apiUrl = getEnv('API_URL');
 const preload = resolveCurrentDir(import.meta.url, 'preload.js');
@@ -85,6 +92,7 @@ import { setSingleInstance } from 'electron-helper/main/app';
 import { resolveAppPath } from 'electron-helper/main/path';
 import { createExternalOpenHandler } from 'electron-helper/main/shell';
 import { isProduction } from 'electron-helper/main/state';
+import { registerUpdaterBridge } from 'electron-helper/main/updater';
 import { centerWindow, focusWindow } from 'electron-helper/main/window';
 import { setUseDevTools } from 'electron-helper/main/window/devtools';
 import { getEnv } from 'electron-helper/node/env';

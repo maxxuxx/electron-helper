@@ -212,6 +212,51 @@ const bounds = getCenteredBounds(mainWindow, {
 });
 ```
 
+### `registerUpdaterBridge(options)`
+
+Connects `electron-updater` events from the main process to preload and renderer updater UI helpers.
+
+Install `electron-updater` in apps that use this module
+
+```bash
+npm install electron-updater
+```
+
+```ts
+// main
+import { BrowserWindow } from 'electron';
+import { registerUpdaterBridge } from 'electron-helper/main/updater';
+
+registerUpdaterBridge({
+  autoDownload: false,
+  getWindows  : () => BrowserWindow.getAllWindows()
+});
+```
+
+```ts
+// preload
+import { exposeUpdaterBridge } from 'electron-helper/preload/updater';
+
+exposeUpdaterBridge({
+  key: 'updater'
+});
+```
+
+```ts
+// renderer
+import { createUpdaterClient } from 'electron-helper/renderer/updater';
+
+const updater = createUpdaterClient(window.updater);
+
+updater.subscribe((state) => {
+  if (state.status === 'downloading') {
+    renderProgress(state.progress?.percent ?? 0);
+  }
+});
+
+await updater.checkForUpdates();
+```
+
 ## Exports
 
 | Export | Description |
@@ -226,6 +271,7 @@ const bounds = getCenteredBounds(mainWindow, {
 | `electron-helper/main/shell` | Safe external URL open handler helpers |
 | `electron-helper/main/shell/external` | Focused external URL open handler helper |
 | `electron-helper/main/state` | Electron runtime state helpers |
+| `electron-helper/main/updater` | Main-process updater bridge helpers |
 | `electron-helper/main/window` | BrowserWindow visibility and focus helpers |
 | `electron-helper/main/window/bounds` | BrowserWindow bounds calculation and centering helpers |
 | `electron-helper/main/window/devtools` | BrowserWindow DevTools state helper |
@@ -236,6 +282,11 @@ const bounds = getCenteredBounds(mainWindow, {
 | `electron-helper/node/path` | Node-compatible path helpers |
 | `electron-helper/node/path/current` | `import.meta.url` dirname and module resolution helpers |
 | `electron-helper/node/path/resources` | Electron resources path helpers without importing Electron |
+| `electron-helper/node/updater` | Shared updater bridge types and serializers |
+| `electron-helper/preload` | Preload aggregate for updater bridge helpers |
+| `electron-helper/preload/updater` | Context-isolated updater bridge helpers |
+| `electron-helper/renderer` | Renderer aggregate for updater client helpers |
+| `electron-helper/renderer/updater` | Renderer updater client helpers |
 
 Both ESM `import` and CommonJS `require` are supported
 
@@ -250,6 +301,7 @@ Both ESM `import` and CommonJS `require` are supported
 - [`electron-helper/main/shell`](src/main/shell/README.md)
 - [`electron-helper/main/shell/external`](src/main/shell/external/README.md)
 - [`electron-helper/main/state`](src/main/state/README.md)
+- [`electron-helper/main/updater`](src/main/updater/README.md)
 - [`electron-helper/main/window`](src/main/window/README.md)
 - [`electron-helper/main/window/bounds`](src/main/window/bounds/README.md)
 - [`electron-helper/main/window/devtools`](src/main/window/devtools/README.md)
@@ -260,3 +312,8 @@ Both ESM `import` and CommonJS `require` are supported
 - [`electron-helper/node/path`](src/node/path/README.md)
 - [`electron-helper/node/path/current`](src/node/path/current/README.md)
 - [`electron-helper/node/path/resources`](src/node/path/resources/README.md)
+- [`electron-helper/node/updater`](src/node/updater/README.md)
+- [`electron-helper/preload`](src/preload/README.md)
+- [`electron-helper/preload/updater`](src/preload/updater/README.md)
+- [`electron-helper/renderer`](src/renderer/README.md)
+- [`electron-helper/renderer/updater`](src/renderer/updater/README.md)

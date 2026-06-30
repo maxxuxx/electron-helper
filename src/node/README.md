@@ -10,13 +10,19 @@ These modules do not import Electron and can run in plain Node.js, Electron main
 | --- | --- | --- |
 | `env` helpers | `electron-helper/node/env` | Dotenv-backed environment variable helpers |
 | `path` helpers | `electron-helper/node/path` | Module and Electron resources path helpers |
+| `updater` helpers | `electron-helper/node/updater` | Shared updater bridge types and serializers |
 
 ## Usage
 
 ```ts
 import { getEnv } from 'electron-helper/node/env';
 import { resolveCurrentDir } from 'electron-helper/node/path/current';
+import type { UpdaterState } from 'electron-helper/node/updater';
 
 const apiUrl = getEnv('API_URL');
 const preloadPath = resolveCurrentDir(import.meta.url, 'preload.js');
+
+function readUpdaterStatus(state: UpdaterState) {
+  return state.status;
+}
 ```

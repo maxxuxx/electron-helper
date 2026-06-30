@@ -1,6 +1,6 @@
 {
   "name": "electron-helper",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Small helpers for Electron apps and modules.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -57,6 +57,11 @@
       "import": "./dist/main/state/index.js",
       "require": "./dist/main/state/index.cjs"
     },
+    "./main/updater": {
+      "types": "./dist/main/updater/index.d.ts",
+      "import": "./dist/main/updater/index.js",
+      "require": "./dist/main/updater/index.cjs"
+    },
     "./main/window": {
       "types": "./dist/main/window/index.d.ts",
       "import": "./dist/main/window/index.js",
@@ -107,30 +112,69 @@
       "import": "./dist/node/path/resources/index.js",
       "require": "./dist/node/path/resources/index.cjs"
     },
+    "./node/updater": {
+      "types": "./dist/node/updater/index.d.ts",
+      "import": "./dist/node/updater/index.js",
+      "require": "./dist/node/updater/index.cjs"
+    },
+    "./preload": {
+      "types": "./dist/preload/index.d.ts",
+      "import": "./dist/preload/index.js",
+      "require": "./dist/preload/index.cjs"
+    },
+    "./preload/updater": {
+      "types": "./dist/preload/updater/index.d.ts",
+      "import": "./dist/preload/updater/index.js",
+      "require": "./dist/preload/updater/index.cjs"
+    },
+    "./renderer": {
+      "types": "./dist/renderer/index.d.ts",
+      "import": "./dist/renderer/index.js",
+      "require": "./dist/renderer/index.cjs"
+    },
+    "./renderer/updater": {
+      "types": "./dist/renderer/updater/index.d.ts",
+      "import": "./dist/renderer/updater/index.js",
+      "require": "./dist/renderer/updater/index.cjs"
+    },
     "./package.json": "./package.json"
   },
   "imports": {
     "#main": "./src/main/index.ts",
     "#main/*": "./src/main/*/index.ts",
     "#node": "./src/node/index.ts",
-    "#node/*": "./src/node/*/index.ts"
+    "#node/*": "./src/node/*/index.ts",
+    "#preload": "./src/preload/index.ts",
+    "#preload/*": "./src/preload/*/index.ts",
+    "#renderer": "./src/renderer/index.ts",
+    "#renderer/*": "./src/renderer/*/index.ts"
   },
   "files": [
     "dist",
     "README.md",
     "src/main/**/README.md",
     "src/node/**/README.md",
+    "src/preload/**/README.md",
+    "src/renderer/**/README.md",
     "LICENSE"
   ],
   "sideEffects": false,
   "dependencies": {
     "dotenv": "^17.2.3"
   },
+  "peerDependencies": {
+    "electron-updater": ">=6"
+  },
+  "peerDependenciesMeta": {
+    "electron-updater": {
+      "optional": true
+    }
+  },
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsup",
+    "build": "node --max-old-space-size=4096 ./node_modules/tsup/dist/cli-default.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "prepack": "npm run build"
@@ -156,6 +200,7 @@
   "devDependencies": {
     "@types/node": "^24.0.0",
     "electron": "^37.10.3",
+    "electron-updater": "^6.8.9",
     "tsup": "^8.5.0",
     "typescript": "^5.8.0",
     "vitest": "^3.2.0"
