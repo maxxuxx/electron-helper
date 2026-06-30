@@ -24,6 +24,9 @@ afterEach(() => {
   delete process.env.ELECTRON_HELPER_ENV_VALUE;
   delete process.env.ELECTRON_HELPER_ENV_EMPTY;
   delete process.env.ELECTRON_HELPER_ENV_ONCE;
+  delete (globalThis as Record<symbol, unknown>)[
+    Symbol.for('electron-helper.node.env.state')
+  ];
 
   if (tempDir !== undefined) {
     rmSync(tempDir, { force: true, recursive: true });
@@ -35,7 +38,7 @@ afterEach(() => {
 
 async function loadEnvModule(): Promise<EnvModule> {
   vi.resetModules();
-  return await import('#main/env') as EnvModule;
+  return await import('#node/env') as EnvModule;
 }
 
 function createTempEnv(contents: string): string {
@@ -46,7 +49,7 @@ function createTempEnv(contents: string): string {
   return envFilePath;
 }
 
-describe('main env helpers', () => {
+describe('node env helpers', () => {
   test('getEnv loads a .env file from the current working directory', async () => {
     createTempEnv([
       'ELECTRON_HELPER_ENV_VALUE=loaded',
@@ -83,17 +86,28 @@ describe('main env helpers', () => {
     );
   });
 
-  test('loadEnv only loads once', async () => {
+  test('node env route re-exports focused env modules', async () => {
+    const envModule  = await loadEnvModule();
+    const loadModule = await import('#node/env/load');
+    const readModule = await import('#node/env/read');
+
+    expect(envModule.loadEnv).toBe(loadModule.loadEnv);
+    expect(envModule.getEnv).toBe(readModule.getEnv);
+    expect(envModule.requireEnv).toBe(readModule.requireEnv);
+  });
+
+  test('loadEnv only loads once across node env subpaths', async () => {
     const firstEnvPath = createTempEnv('ELECTRON_HELPER_ENV_ONCE=first');
     const secondEnvPath = nodePath.join(tempDir!, '.env.second');
 
     writeFileSync(secondEnvPath, 'ELECTRON_HELPER_ENV_ONCE=second');
 
-    const envModule = await loadEnvModule();
+    const loadModule = await import('#node/env/load');
+    const readModule = await import('#node/env/read');
 
-    envModule.loadEnv({ path: firstEnvPath });
-    envModule.loadEnv({ path: secondEnvPath });
+    loadModule.loadEnv({ path: firstEnvPath });
+    loadModule.loadEnv({ path: secondEnvPath });
 
-    expect(process.env.ELECTRON_HELPER_ENV_ONCE).toBe('first');
+    expect(readModule.getEnv('ELECTRON_HELPER_ENV_ONCE')).toBe('first');
   });
 });

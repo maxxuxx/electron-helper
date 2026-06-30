@@ -1,0 +1,22 @@
+# `electron-helper/node`
+
+Node-compatible helpers for Electron apps and tooling
+
+These modules do not import Electron and can run in plain Node.js, Electron main, preload, utility processes, tests, and build scripts
+
+## Exports
+
+| Export | Source | Description |
+| --- | --- | --- |
+| `env` helpers | `electron-helper/node/env` | Dotenv-backed environment variable helpers |
+| `path` helpers | `electron-helper/node/path` | Module and Electron resources path helpers |
+
+## Usage
+
+```ts
+import { getEnv } from 'electron-helper/node/env';
+import { resolveCurrentDir } from 'electron-helper/node/path/current';
+
+const apiUrl = getEnv('API_URL');
+const preloadPath = resolveCurrentDir(import.meta.url, 'preload.js');
+```

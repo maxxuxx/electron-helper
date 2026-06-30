@@ -37,7 +37,7 @@ isProduction();
 Loads `.env` from the current working directory once, then returns the requested value.
 
 ```ts
-import { getEnv, requireEnv } from 'electron-helper/main/env';
+import { getEnv, requireEnv } from 'electron-helper/node/env';
 
 const apiUrl = getEnv('API_URL');
 const token = requireEnv('API_TOKEN');
@@ -46,22 +46,23 @@ const token = requireEnv('API_TOKEN');
 Use `loadEnv({ path })` when the `.env` file lives somewhere else.
 
 ```ts
-import { loadEnv } from 'electron-helper/main/env';
+import { loadEnv } from 'electron-helper/node/env';
 
 loadEnv({ path: '/path/to/.env' });
 ```
 
-### `configurePath(metaUrl)`
+### `resolveCurrentDir(metaUrl, ...segments)`
 
-Registers a module `import.meta.url` for path helpers that resolve from the current main-process module.
+Resolves path segments from a module `import.meta.url`.
 
 ```ts
-import { configurePath, resolvePath } from 'electron-helper/main/path';
+import { resolveCurrentDir } from 'electron-helper/node/path/current';
 
-configurePath(import.meta.url);
-
-const preload = resolvePath('preload.js');
-const rendererEntry = resolvePath('../../react/dist/index.html');
+const preload = resolveCurrentDir(import.meta.url, 'preload.js');
+const rendererEntry = resolveCurrentDir(
+  import.meta.url,
+  '../../react/dist/index.html'
+);
 ```
 
 ### `resolveAppPath(...segments)`
@@ -84,12 +85,145 @@ import { resolveElectronPath } from 'electron-helper/main/path';
 resolveElectronPath('userData', 'settings.json');
 ```
 
+### `createExternalOpenHandler(options)`
+
+Creates a `webContents.setWindowOpenHandler()` callback that opens allowed URLs
+with Electron's `shell.openExternal()` and denies Electron-created child windows.
+
+```ts
+import { createExternalOpenHandler } from 'electron-helper/main/shell';
+
+mainWindow.webContents.setWindowOpenHandler(
+  createExternalOpenHandler({
+    allowedHosts    : ['example.com'],
+    allowedProtocols: ['https:']
+  })
+);
+```
+
+### `setSingleInstance(window)`
+
+Requests Electron's single-instance lock. Later app launches focus the provided
+window instead of creating a second running app instance.
+
+```ts
+import { app, BrowserWindow } from 'electron';
+import { setSingleInstance } from 'electron-helper/main/app';
+
+let mainWindow: BrowserWindow | null = null;
+
+if (setSingleInstance(() => mainWindow)) {
+  await app.whenReady();
+
+  mainWindow = new BrowserWindow();
+}
+```
+
+Use `setSingleInstance(mainWindow)` when the window already exists. Use
+`setSingleInstance(() => mainWindow)` when the window is assigned later.
+
+### `activeWindow()`
+
+Returns the currently focused Electron `BrowserWindow`, or `undefined` when no
+usable window is focused.
+
+```ts
+import { activeWindow } from 'electron-helper/main/window';
+
+activeWindow()?.webContents.openDevTools({ mode: 'detach' });
+```
+
+### `focusWindow(window)`
+
+Restores a minimized window, shows a hidden window, then focuses it.
+
+```ts
+import { focusWindow } from 'electron-helper/main/window';
+
+app.on('second-instance', () => {
+  focusWindow(mainWindow);
+});
+```
+
+### `showWhenReady(window)`
+
+Registers a `ready-to-show` listener that shows the window after Electron has
+finished preparing the first paint.
+
+```ts
+import { BrowserWindow } from 'electron';
+import { showWhenReady } from 'electron-helper/main/window';
+
+const mainWindow = new BrowserWindow({ show: false });
+
+showWhenReady(mainWindow);
+```
+
+### `centerWindow(window, options)`
+
+Centers a window on its matching display.
+
+```ts
+import { centerWindow } from 'electron-helper/main/window';
+
+centerWindow(mainWindow, {
+  size: { width: 1000, height: 700 }
+});
+```
+
+### `getCenteredBounds(window, options)`
+
+Calculates centered bounds without applying them.
+
+```ts
+import { getCenteredBounds } from 'electron-helper/main/window/bounds';
+
+const bounds = getCenteredBounds(mainWindow, {
+  size: { width: 1000, height: 700 }
+});
+```
+
 ## Exports
 
-- `electron-helper`
-- `electron-helper/main`
-- `electron-helper/main/env`
-- `electron-helper/main/path`
-- `electron-helper/main/state`
+| Export | Description |
+| --- | --- |
+| `electron-helper` | Root aggregate for the current helper modules |
+| `electron-helper/main` | Main-process aggregate for app, path, shell, state, and window helpers |
+| `electron-helper/main/app` | App lifecycle helpers |
+| `electron-helper/main/app/single-instance` | Focused single-instance helper |
+| `electron-helper/main/path` | Electron app path helpers |
+| `electron-helper/main/path/electron` | Electron app path helpers |
+| `electron-helper/main/shell` | Safe external URL open handler helpers |
+| `electron-helper/main/shell/external` | Focused external URL open handler helper |
+| `electron-helper/main/state` | Electron runtime state helpers |
+| `electron-helper/main/window` | BrowserWindow visibility and focus helpers |
+| `electron-helper/main/window/bounds` | BrowserWindow bounds calculation and centering helpers |
+| `electron-helper/node` | Node-compatible aggregate for env and path helpers |
+| `electron-helper/node/env` | Dotenv-backed environment variable helpers |
+| `electron-helper/node/env/load` | Focused dotenv loading helper |
+| `electron-helper/node/env/read` | Focused env value reading helpers |
+| `electron-helper/node/path` | Node-compatible path helpers |
+| `electron-helper/node/path/current` | `import.meta.url` dirname and module resolution helpers |
+| `electron-helper/node/path/resources` | Electron resources path helpers without importing Electron |
 
-Both ESM `import` and CommonJS `require` are supported.
+Both ESM `import` and CommonJS `require` are supported
+
+## Module Docs
+
+- [`electron-helper/main`](src/main/README.md)
+- [`electron-helper/main/app`](src/main/app/README.md)
+- [`electron-helper/main/app/single-instance`](src/main/app/single-instance/README.md)
+- [`electron-helper/main/path`](src/main/path/README.md)
+- [`electron-helper/main/path/electron`](src/main/path/electron/README.md)
+- [`electron-helper/main/shell`](src/main/shell/README.md)
+- [`electron-helper/main/shell/external`](src/main/shell/external/README.md)
+- [`electron-helper/main/state`](src/main/state/README.md)
+- [`electron-helper/main/window`](src/main/window/README.md)
+- [`electron-helper/main/window/bounds`](src/main/window/bounds/README.md)
+- [`electron-helper/node`](src/node/README.md)
+- [`electron-helper/node/env`](src/node/env/README.md)
+- [`electron-helper/node/env/load`](src/node/env/load/README.md)
+- [`electron-helper/node/env/read`](src/node/env/read/README.md)
+- [`electron-helper/node/path`](src/node/path/README.md)
+- [`electron-helper/node/path/current`](src/node/path/current/README.md)
+- [`electron-helper/node/path/resources`](src/node/path/resources/README.md)

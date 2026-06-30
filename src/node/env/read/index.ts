@@ -1,40 +1,12 @@
-import { config as loadDotEnv } from 'dotenv';
-import nodePath from 'node:path';
+import { loadEnv } from '../load/index.js';
 
-import type {
-  DotenvConfigOptions,
-  DotenvConfigOutput
-} from 'dotenv';
-
+/** Record shape for custom environment sources */
 export type EnvSource = Record<string, string | undefined>;
-
-let isEnvLoaded = false;
-
-function getDefaultEnvPath(): string {
-  return nodePath.resolve(process.cwd(), '.env');
-}
 
 function loadEnvForProcess(source: EnvSource): void {
   if (source === process.env) {
     loadEnv();
   }
-}
-
-/** Loads a dotenv file once for process-level environment access */
-export function loadEnv(
-  options: DotenvConfigOptions = {}
-): DotenvConfigOutput | undefined {
-  if (isEnvLoaded) {
-    return undefined;
-  }
-
-  isEnvLoaded = true;
-
-  return loadDotEnv({
-    path : getDefaultEnvPath(),
-    quiet: true,
-    ...options
-  });
 }
 
 /** Returns an env value and treats an empty string as missing */
