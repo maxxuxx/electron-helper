@@ -1,6 +1,1 @@
-export {
-  isPackaged,
-  isProduction,
-  type ElectronAppLike,
-  type OptionalElectronAppLike
-} from './main.js';
+export * from './main/index.js';

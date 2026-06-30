@@ -1,48 +1,54 @@
-import { afterEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+
+const electronApp = vi.hoisted(() => ({
+  isPackaged: false
+}));
+
+vi.mock('electron', () => ({
+  app: electronApp
+}));
 
 import { isProduction as isProductionFromRoot } from '../src/index.js';
-import { isPackaged, isProduction } from '../src/main.js';
+import { isProduction } from '../src/main/index.js';
 
-const originalNodeEnv = process.env.NODE_ENV;
-
-afterEach(() => {
-  if (originalNodeEnv === undefined) {
-    delete process.env.NODE_ENV;
-    return;
-  }
-
-  process.env.NODE_ENV = originalNodeEnv;
+beforeEach(() => {
+  electronApp.isPackaged = false;
+  process.env.NODE_ENV = 'development';
 });
 
 describe('main process helpers', () => {
-  test('isPackaged returns true when the Electron app is packaged', () => {
-    expect(isPackaged({ isPackaged: true })).toBe(true);
-  });
+  test('isProduction returns true when the Electron app is packaged', () => {
+    electronApp.isPackaged = true;
 
-  test('isPackaged returns false when the Electron app is not packaged', () => {
-    expect(isPackaged({ isPackaged: false })).toBe(false);
-  });
-
-  test('isProduction follows app.isPackaged when an app object is provided', () => {
-    process.env.NODE_ENV = 'development';
-
-    expect(isProduction({ isPackaged: true })).toBe(true);
-    expect(isProduction({ isPackaged: false })).toBe(false);
-  });
-
-  test('isProduction falls back to NODE_ENV when no app object is provided', () => {
-    process.env.NODE_ENV = 'production';
     expect(isProduction()).toBe(true);
+  });
 
-    process.env.NODE_ENV = 'development';
+  test('isProduction returns false when the Electron app is not packaged', () => {
+    electronApp.isPackaged = false;
+    process.env.NODE_ENV = 'production';
+
     expect(isProduction()).toBe(false);
   });
 
-  test('NODE_ENV changes do not leak between tests', () => {
-    expect(process.env.NODE_ENV).toBe(originalNodeEnv);
+  test('main state route exports Electron-backed helpers', async () => {
+    const stateModule = await import('#main/state');
+
+    electronApp.isPackaged = true;
+
+    expect(stateModule.isProduction()).toBe(true);
   });
 
-  test('root export re-exports main process helpers', () => {
-    expect(isProductionFromRoot({ isPackaged: true })).toBe(true);
+  test('main index re-exports state helpers', async () => {
+    const environmentModule = await import('#main/state');
+    const mainModule = await import('../src/main/index.js');
+
+    expect(mainModule.isProduction).toBe(environmentModule.isProduction);
+  });
+
+  test('root export re-exports main process helpers', async () => {
+    const rootModule = await import('../src/index.js');
+
+    expect(rootModule.isProduction).toBe(isProduction);
+    expect(isProductionFromRoot).toBe(isProduction);
   });
 });

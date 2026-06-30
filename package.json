@@ -1,7 +1,7 @@
 {
   "name": "electron-helper",
-  "version": "0.1.0",
-  "description": "Small dependency-free helpers for Electron apps and modules.",
+  "version": "0.2.0",
+  "description": "Small helpers for Electron apps and modules.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -13,11 +13,30 @@
       "require": "./dist/index.cjs"
     },
     "./main": {
-      "types": "./dist/main.d.ts",
-      "import": "./dist/main.js",
-      "require": "./dist/main.cjs"
+      "types": "./dist/main/index.d.ts",
+      "import": "./dist/main/index.js",
+      "require": "./dist/main/index.cjs"
+    },
+    "./main/env": {
+      "types": "./dist/main/env/index.d.ts",
+      "import": "./dist/main/env/index.js",
+      "require": "./dist/main/env/index.cjs"
+    },
+    "./main/path": {
+      "types": "./dist/main/path/index.d.ts",
+      "import": "./dist/main/path/index.js",
+      "require": "./dist/main/path/index.cjs"
+    },
+    "./main/state": {
+      "types": "./dist/main/state/index.d.ts",
+      "import": "./dist/main/state/index.js",
+      "require": "./dist/main/state/index.cjs"
     },
     "./package.json": "./package.json"
+  },
+  "imports": {
+    "#main": "./src/main/index.ts",
+    "#main/*": "./src/main/*/index.ts"
   },
   "files": [
     "dist",
@@ -25,6 +44,9 @@
     "LICENSE"
   ],
   "sideEffects": false,
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -54,6 +76,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "electron": "^37.10.3",
     "tsup": "^8.5.0",
     "typescript": "^5.8.0",
     "vitest": "^3.2.0"
