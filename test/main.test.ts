@@ -38,23 +38,7 @@ describe('main process helpers', () => {
     expect(stateModule.isProduction()).toBe(true);
   });
 
-  test('main enviroment route keeps compatibility with state helpers', async () => {
-    const environmentModule = await import('../src/main/enviroment/index.js');
-
-    electronApp.isPackaged = true;
-
-    expect(environmentModule.isProduction()).toBe(true);
-  });
-
-  test('main alias resolves enviroment helpers', async () => {
-    const environmentModule = await import('#main/enviroment');
-
-    electronApp.isPackaged = true;
-
-    expect(environmentModule.isProduction()).toBe(true);
-  });
-
-  test('main index re-exports enviroment helpers', async () => {
+  test('main index re-exports state helpers', async () => {
     const environmentModule = await import('#main/state');
     const mainModule = await import('../src/main/index.js');
 
