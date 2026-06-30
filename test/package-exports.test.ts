@@ -9,6 +9,11 @@ const packageJson = JSON.parse(
 };
 
 describe('package exports', () => {
+  test('exports focused main helper routes as canonical APIs', () => {
+    expect(packageJson.exports).toHaveProperty('./main/app/window-all-closed');
+    expect(packageJson.exports).toHaveProperty('./main/window/devtools');
+  });
+
   test('exports node env and path routes as canonical APIs', () => {
     expect(packageJson.exports).toHaveProperty('./node');
     expect(packageJson.exports).toHaveProperty('./node/env');

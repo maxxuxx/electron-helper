@@ -8,11 +8,14 @@ BrowserWindow visibility, focus, and bounds helpers for Electron main-process co
 | --- | --- | --- |
 | `activeWindow()` | Function | Returns the currently focused usable BrowserWindow |
 | `focusWindow(window?)` | Function | Short alias for `showAndFocusWindow` |
-| `showWhenReady(window?)` | Function | Short alias for `showWindowWhenReady` |
 | `centerWindow(window?, options?)` | Function | Centers an existing BrowserWindow on its matching display |
 | `getCenteredBounds(window, options?)` | Function | Calculates centered bounds without applying them |
+| `setExternalOpenHandler(window?, options?)` | Function | Registers a safe external URL handler on an existing BrowserWindow |
+| `setUseDevTools(window, enabled, options?)` | Function | Opens or closes BrowserWindow DevTools |
+| `setWindowShowWhenReady(window?)` | Function | Sets a BrowserWindow to show when Electron emits `ready-to-show` |
 | `showAndFocusWindow(window?)` | Function | Restores, shows, and focuses an existing BrowserWindow |
-| `showWindowWhenReady(window?)` | Function | Shows a BrowserWindow when Electron emits `ready-to-show` |
+| `showWhenReady(window?)` | Function | Short alias for `setWindowShowWhenReady` |
+| `showWindowWhenReady(window?)` | Function | Backward-compatible alias for `setWindowShowWhenReady` |
 | `MaybeBrowserWindow` | Type | `BrowserWindow | null | undefined` helper type |
 
 ## Usage
@@ -22,7 +25,9 @@ import { app, BrowserWindow } from 'electron';
 import {
   centerWindow,
   focusWindow,
-  showWhenReady
+  setExternalOpenHandler,
+  setUseDevTools,
+  setWindowShowWhenReady
 } from 'electron-helper/main/window';
 
 let mainWindow: BrowserWindow | null = null;
@@ -31,7 +36,14 @@ mainWindow = new BrowserWindow({ show: false });
 centerWindow(mainWindow, {
   size: { width: 1000, height: 700 }
 });
-showWhenReady(mainWindow);
+setWindowShowWhenReady(mainWindow);
+setUseDevTools(mainWindow, process.env.NODE_ENV === 'development', {
+  mode: 'detach'
+});
+setExternalOpenHandler(mainWindow, {
+  allowedHosts    : ['example.com'],
+  allowedProtocols: ['https:']
+});
 
 app.on('second-instance', () => {
   focusWindow(mainWindow);
@@ -47,4 +59,10 @@ import {
   centerWindow,
   getCenteredBounds
 } from 'electron-helper/main/window/bounds';
+```
+
+## Focused DevTools Import
+
+```ts
+import { setUseDevTools } from 'electron-helper/main/window/devtools';
 ```

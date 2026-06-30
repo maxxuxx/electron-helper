@@ -10,9 +10,14 @@ const electronScreen = vi.hoisted(() => ({
   getDisplayMatching: vi.fn()
 }));
 
+const electronShell = vi.hoisted(() => ({
+  openExternal: vi.fn(() => Promise.resolve())
+}));
+
 vi.mock('electron', () => ({
   BrowserWindow: electronBrowserWindow,
-  screen       : electronScreen
+  screen       : electronScreen,
+  shell        : electronShell
 }));
 
 type FakeWindowState = {
@@ -31,6 +36,13 @@ type FakeBrowserWindow = {
   readonly restore     : ReturnType<typeof vi.fn>;
   readonly setBounds   : ReturnType<typeof vi.fn>;
   readonly show        : ReturnType<typeof vi.fn>;
+  readonly webContents : {
+    readonly closeDevTools   : ReturnType<typeof vi.fn>;
+    readonly isDevToolsOpened: ReturnType<typeof vi.fn>;
+    readonly openDevTools    : ReturnType<typeof vi.fn>;
+    readonly setWindowOpenHandler: ReturnType<typeof vi.fn>;
+    readonly setDevToolsOpen : (value: boolean) => void;
+  };
   readonly emitReadyToShow: () => void;
   readonly setDestroyed  : (value: boolean) => void;
 };
@@ -41,7 +53,8 @@ function createFakeWindow({
   visible   = true
 }: FakeWindowState = {}): FakeBrowserWindow {
   const readyToShowListeners: Array<() => void> = [];
-  let isDestroyed = destroyed;
+  let isDestroyed  = destroyed;
+  let devToolsOpen = false;
 
   const fakeWindow = {
     focus      : vi.fn(),
@@ -64,6 +77,19 @@ function createFakeWindow({
     restore        : vi.fn(),
     setBounds      : vi.fn(),
     show           : vi.fn(),
+    webContents    : {
+      closeDevTools: vi.fn(() => {
+        devToolsOpen = false;
+      }),
+      isDevToolsOpened: vi.fn(() => devToolsOpen),
+      openDevTools    : vi.fn(() => {
+        devToolsOpen = true;
+      }),
+      setWindowOpenHandler: vi.fn(),
+      setDevToolsOpen: (value: boolean) => {
+        devToolsOpen = value;
+      }
+    },
     emitReadyToShow: () => {
       for (const listener of readyToShowListeners) {
         listener();
@@ -84,6 +110,7 @@ function asBrowserWindow(window: FakeBrowserWindow): BrowserWindow {
 beforeEach(() => {
   electronBrowserWindow.getFocusedWindow.mockReset();
   electronScreen.getDisplayMatching.mockReset();
+  electronShell.openExternal.mockClear();
 });
 
 describe('main window helpers', () => {
@@ -154,11 +181,11 @@ describe('main window helpers', () => {
     expect(window.focus).not.toHaveBeenCalled();
   });
 
-  test('showWindowWhenReady shows the window after ready-to-show', async () => {
+  test('setWindowShowWhenReady shows the window after ready-to-show', async () => {
     const windowModule = await import('#main/window');
     const window       = createFakeWindow();
 
-    expect(windowModule.showWindowWhenReady(asBrowserWindow(window))).toBe(true);
+    expect(windowModule.setWindowShowWhenReady(asBrowserWindow(window))).toBe(true);
     expect(window.once).toHaveBeenCalledWith('ready-to-show', expect.any(Function));
     expect(window.show).not.toHaveBeenCalled();
 
@@ -167,19 +194,19 @@ describe('main window helpers', () => {
     expect(window.show).toHaveBeenCalledOnce();
   });
 
-  test('showWindowWhenReady returns false for missing or destroyed windows', async () => {
+  test('setWindowShowWhenReady returns false for missing or destroyed windows', async () => {
     const windowModule    = await import('#main/window');
     const destroyedWindow = createFakeWindow({ destroyed: true });
     const readyWindow     = createFakeWindow();
 
-    expect(windowModule.showWindowWhenReady()).toBe(false);
-    expect(windowModule.showWindowWhenReady(null)).toBe(false);
+    expect(windowModule.setWindowShowWhenReady()).toBe(false);
+    expect(windowModule.setWindowShowWhenReady(null)).toBe(false);
     expect(
-      windowModule.showWindowWhenReady(asBrowserWindow(destroyedWindow))
+      windowModule.setWindowShowWhenReady(asBrowserWindow(destroyedWindow))
     ).toBe(false);
     expect(destroyedWindow.once).not.toHaveBeenCalled();
 
-    expect(windowModule.showWindowWhenReady(asBrowserWindow(readyWindow))).toBe(
+    expect(windowModule.setWindowShowWhenReady(asBrowserWindow(readyWindow))).toBe(
       true
     );
 
@@ -189,16 +216,87 @@ describe('main window helpers', () => {
     expect(readyWindow.show).not.toHaveBeenCalled();
   });
 
-  test('showWhenReady is a short alias for showWindowWhenReady', async () => {
+  test('showWhenReady aliases setWindowShowWhenReady', async () => {
+    const windowModule = await import('#main/window');
+
+    expect(windowModule.showWhenReady).toBe(windowModule.setWindowShowWhenReady);
+    expect(windowModule.showWindowWhenReady).toBe(
+      windowModule.setWindowShowWhenReady
+    );
+  });
+
+  test('setUseDevTools opens and closes devtools to match the enabled flag', async () => {
     const windowModule = await import('#main/window');
     const window       = createFakeWindow();
 
-    expect(windowModule.showWhenReady).toBe(windowModule.showWindowWhenReady);
-    expect(windowModule.showWhenReady(asBrowserWindow(window))).toBe(true);
+    expect(
+      windowModule.setUseDevTools(asBrowserWindow(window), true, {
+        activate: false,
+        mode    : 'detach'
+      })
+    ).toBe(true);
+    expect(window.webContents.openDevTools).toHaveBeenCalledWith({
+      activate: false,
+      mode    : 'detach'
+    });
+    expect(window.webContents.closeDevTools).not.toHaveBeenCalled();
 
-    window.emitReadyToShow();
+    expect(windowModule.setUseDevTools(asBrowserWindow(window), false)).toBe(
+      true
+    );
+    expect(window.webContents.closeDevTools).toHaveBeenCalledOnce();
+  });
 
-    expect(window.show).toHaveBeenCalledOnce();
+  test('setUseDevTools returns false for missing or destroyed windows', async () => {
+    const windowModule    = await import('#main/window');
+    const destroyedWindow = createFakeWindow({ destroyed: true });
+
+    expect(windowModule.setUseDevTools(undefined, true)).toBe(false);
+    expect(windowModule.setUseDevTools(null, true)).toBe(false);
+    expect(
+      windowModule.setUseDevTools(asBrowserWindow(destroyedWindow), true)
+    ).toBe(false);
+    expect(destroyedWindow.webContents.openDevTools).not.toHaveBeenCalled();
+  });
+
+  test('setWindowDevTools is not exported', async () => {
+    const windowModule = await import('#main/window');
+    const devtoolsModule = await import('#main/window/devtools');
+
+    expect('setWindowDevTools' in windowModule).toBe(false);
+    expect('setWindowDevTools' in devtoolsModule).toBe(false);
+  });
+
+  test('setExternalOpenHandler registers an external open handler', async () => {
+    const windowModule = await import('#main/window');
+    const window       = createFakeWindow();
+
+    expect(
+      windowModule.setExternalOpenHandler(asBrowserWindow(window), {
+        allowedHosts    : ['example.com'],
+        allowedProtocols: ['https:']
+      })
+    ).toBe(true);
+    expect(window.webContents.setWindowOpenHandler).toHaveBeenCalledOnce();
+
+    const [handler] = window.webContents.setWindowOpenHandler.mock.calls[0]!;
+
+    expect(handler({ url: 'https://example.com/docs' })).toEqual({
+      action: 'deny'
+    });
+    expect(electronShell.openExternal).toHaveBeenCalledWith(
+      'https://example.com/docs'
+    );
+  });
+
+  test('setExternalOpenHandler returns false for missing or destroyed windows', async () => {
+    const windowModule = await import('#main/window');
+    const window       = createFakeWindow({ destroyed: true });
+
+    expect(windowModule.setExternalOpenHandler()).toBe(false);
+    expect(windowModule.setExternalOpenHandler(null)).toBe(false);
+    expect(windowModule.setExternalOpenHandler(asBrowserWindow(window))).toBe(false);
+    expect(window.webContents.setWindowOpenHandler).not.toHaveBeenCalled();
   });
 
   test('getCenteredBounds returns centered bounds inside the matching display work area', async () => {
@@ -322,10 +420,12 @@ describe('main window helpers', () => {
 
   test('main window route re-exports bounds helpers', async () => {
     const boundsModule = await import('#main/window/bounds');
+    const devtoolsModule = await import('#main/window/devtools');
     const windowModule = await import('#main/window');
 
     expect(windowModule.centerWindow).toBe(boundsModule.centerWindow);
     expect(windowModule.getCenteredBounds).toBe(boundsModule.getCenteredBounds);
+    expect(windowModule.setUseDevTools).toBe(devtoolsModule.setUseDevTools);
   });
 
   test('main index re-exports window helpers', async () => {
@@ -334,12 +434,19 @@ describe('main window helpers', () => {
 
     expect(mainModule.activeWindow).toBe(windowModule.activeWindow);
     expect(mainModule.focusWindow).toBe(windowModule.focusWindow);
-    expect(mainModule.showWhenReady).toBe(windowModule.showWhenReady);
     expect(mainModule.centerWindow).toBe(windowModule.centerWindow);
     expect(mainModule.getCenteredBounds).toBe(windowModule.getCenteredBounds);
-    expect(mainModule.showAndFocusWindow).toBe(windowModule.showAndFocusWindow);
+    expect(mainModule.setExternalOpenHandler).toBe(
+      windowModule.setExternalOpenHandler
+    );
+    expect(mainModule.setUseDevTools).toBe(windowModule.setUseDevTools);
+    expect(mainModule.setWindowShowWhenReady).toBe(
+      windowModule.setWindowShowWhenReady
+    );
+    expect(mainModule.showWhenReady).toBe(windowModule.showWhenReady);
     expect(mainModule.showWindowWhenReady).toBe(
       windowModule.showWindowWhenReady
     );
+    expect(mainModule.showAndFocusWindow).toBe(windowModule.showAndFocusWindow);
   });
 });

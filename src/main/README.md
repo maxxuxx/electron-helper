@@ -8,9 +8,11 @@ Use this entrypoint when you want all currently available main-process helpers f
 import {
   getEnv,
   isProduction,
+  quitWhenAllWindowsClosed,
   resolveAppPath,
+  setUseDevTools,
   setSingleInstance,
-  showWhenReady
+  setWindowShowWhenReady
 } from 'electron-helper/main';
 ```
 
@@ -32,9 +34,11 @@ import {
   centerWindow,
   createExternalOpenHandler,
   isProduction,
+  quitWhenAllWindowsClosed,
   resolveAppPath,
+  setUseDevTools,
   setSingleInstance,
-  showWhenReady
+  setWindowShowWhenReady
 } from 'electron-helper/main';
 import { getEnv } from 'electron-helper/node/env';
 import { resolveCurrentDir } from 'electron-helper/node/path/current';
@@ -42,6 +46,7 @@ import { resolveCurrentDir } from 'electron-helper/node/path/current';
 let mainWindow: BrowserWindow | null = null;
 
 setSingleInstance(() => mainWindow);
+quitWhenAllWindowsClosed();
 
 const apiUrl = getEnv('API_URL');
 const preload = resolveCurrentDir(import.meta.url, 'preload.js');
@@ -56,7 +61,7 @@ mainWindow = new BrowserWindow({
 centerWindow(mainWindow, {
   size: { width: 1000, height: 700 }
 });
-showWhenReady(mainWindow);
+setWindowShowWhenReady(mainWindow);
 
 mainWindow.webContents.setWindowOpenHandler(
   createExternalOpenHandler({
@@ -65,9 +70,7 @@ mainWindow.webContents.setWindowOpenHandler(
   })
 );
 
-if (!isProduction()) {
-  mainWindow.webContents.openDevTools({ mode: 'detach' });
-}
+setUseDevTools(mainWindow, !isProduction());
 
 await app.whenReady();
 await mainWindow.loadURL(apiUrl ?? 'http://localhost:5173');
@@ -83,6 +86,7 @@ import { resolveAppPath } from 'electron-helper/main/path';
 import { createExternalOpenHandler } from 'electron-helper/main/shell';
 import { isProduction } from 'electron-helper/main/state';
 import { centerWindow, focusWindow } from 'electron-helper/main/window';
+import { setUseDevTools } from 'electron-helper/main/window/devtools';
 import { getEnv } from 'electron-helper/node/env';
 import { resolveCurrentDir } from 'electron-helper/node/path/current';
 ```

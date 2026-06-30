@@ -122,6 +122,23 @@ if (setSingleInstance(() => mainWindow)) {
 Use `setSingleInstance(mainWindow)` when the window already exists. Use
 `setSingleInstance(() => mainWindow)` when the window is assigned later.
 
+### `quitWhenAllWindowsClosed(options)`
+
+Registers Electron's `window-all-closed` behavior. By default, macOS keeps the
+app running after the last window closes
+
+```ts
+import { quitWhenAllWindowsClosed } from 'electron-helper/main/app';
+
+quitWhenAllWindowsClosed();
+```
+
+Pass `quitOnDarwin: true` when the app should quit on macOS too
+
+```ts
+quitWhenAllWindowsClosed({ quitOnDarwin: true });
+```
+
 ### `activeWindow()`
 
 Returns the currently focused Electron `BrowserWindow`, or `undefined` when no
@@ -145,18 +162,30 @@ app.on('second-instance', () => {
 });
 ```
 
-### `showWhenReady(window)`
+### `setWindowShowWhenReady(window)`
 
 Registers a `ready-to-show` listener that shows the window after Electron has
 finished preparing the first paint.
 
 ```ts
 import { BrowserWindow } from 'electron';
-import { showWhenReady } from 'electron-helper/main/window';
+import { setWindowShowWhenReady } from 'electron-helper/main/window';
 
 const mainWindow = new BrowserWindow({ show: false });
 
-showWhenReady(mainWindow);
+setWindowShowWhenReady(mainWindow);
+```
+
+### `setUseDevTools(window, enabled, options?)`
+
+Opens or closes BrowserWindow DevTools to match the requested state
+
+```ts
+import { setUseDevTools } from 'electron-helper/main/window';
+
+setUseDevTools(mainWindow, process.env.NODE_ENV === 'development', {
+  mode: 'detach'
+});
 ```
 
 ### `centerWindow(window, options)`
@@ -191,6 +220,7 @@ const bounds = getCenteredBounds(mainWindow, {
 | `electron-helper/main` | Main-process aggregate for app, path, shell, state, and window helpers |
 | `electron-helper/main/app` | App lifecycle helpers |
 | `electron-helper/main/app/single-instance` | Focused single-instance helper |
+| `electron-helper/main/app/window-all-closed` | Focused all-windows-closed quit helper |
 | `electron-helper/main/path` | Electron app path helpers |
 | `electron-helper/main/path/electron` | Electron app path helpers |
 | `electron-helper/main/shell` | Safe external URL open handler helpers |
@@ -198,6 +228,7 @@ const bounds = getCenteredBounds(mainWindow, {
 | `electron-helper/main/state` | Electron runtime state helpers |
 | `electron-helper/main/window` | BrowserWindow visibility and focus helpers |
 | `electron-helper/main/window/bounds` | BrowserWindow bounds calculation and centering helpers |
+| `electron-helper/main/window/devtools` | BrowserWindow DevTools state helper |
 | `electron-helper/node` | Node-compatible aggregate for env and path helpers |
 | `electron-helper/node/env` | Dotenv-backed environment variable helpers |
 | `electron-helper/node/env/load` | Focused dotenv loading helper |
@@ -213,6 +244,7 @@ Both ESM `import` and CommonJS `require` are supported
 - [`electron-helper/main`](src/main/README.md)
 - [`electron-helper/main/app`](src/main/app/README.md)
 - [`electron-helper/main/app/single-instance`](src/main/app/single-instance/README.md)
+- [`electron-helper/main/app/window-all-closed`](src/main/app/window-all-closed/README.md)
 - [`electron-helper/main/path`](src/main/path/README.md)
 - [`electron-helper/main/path/electron`](src/main/path/electron/README.md)
 - [`electron-helper/main/shell`](src/main/shell/README.md)
@@ -220,6 +252,7 @@ Both ESM `import` and CommonJS `require` are supported
 - [`electron-helper/main/state`](src/main/state/README.md)
 - [`electron-helper/main/window`](src/main/window/README.md)
 - [`electron-helper/main/window/bounds`](src/main/window/bounds/README.md)
+- [`electron-helper/main/window/devtools`](src/main/window/devtools/README.md)
 - [`electron-helper/node`](src/node/README.md)
 - [`electron-helper/node/env`](src/node/env/README.md)
 - [`electron-helper/node/env/load`](src/node/env/load/README.md)
