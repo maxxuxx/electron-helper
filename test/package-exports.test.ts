@@ -14,11 +14,12 @@ describe('package exports', () => {
     expect(packageJson.exports).toHaveProperty('./main/window/devtools');
   });
 
-  test('exports node env and path routes as canonical APIs', () => {
+  test('exports node env, os, and path routes as canonical APIs', () => {
     expect(packageJson.exports).toHaveProperty('./node');
     expect(packageJson.exports).toHaveProperty('./node/env');
     expect(packageJson.exports).toHaveProperty('./node/env/load');
     expect(packageJson.exports).toHaveProperty('./node/env/read');
+    expect(packageJson.exports).toHaveProperty('./node/os');
     expect(packageJson.exports).toHaveProperty('./node/path');
     expect(packageJson.exports).toHaveProperty('./node/path/current');
     expect(packageJson.exports).toHaveProperty('./node/path/resources');
@@ -29,6 +30,10 @@ describe('package exports', () => {
     expect(packageJson.exports).toHaveProperty('./node/updater');
     expect(packageJson.exports).toHaveProperty('./preload/updater');
     expect(packageJson.exports).toHaveProperty('./renderer/updater');
+  });
+
+  test('exports main settings route as a canonical API', () => {
+    expect(packageJson.exports).toHaveProperty('./main/settings');
   });
 
   test('does not export replaced main env and Node-only path routes', () => {

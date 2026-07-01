@@ -9,6 +9,7 @@ These modules do not import Electron and can run in plain Node.js, Electron main
 | Export | Source | Description |
 | --- | --- | --- |
 | `env` helpers | `electron-helper/node/env` | Dotenv-backed environment variable helpers |
+| `os` helpers | `electron-helper/node/os` | Node platform and OS check helpers |
 | `path` helpers | `electron-helper/node/path` | Module and Electron resources path helpers |
 | `updater` helpers | `electron-helper/node/updater` | Shared updater bridge types and serializers |
 
@@ -16,11 +17,13 @@ These modules do not import Electron and can run in plain Node.js, Electron main
 
 ```ts
 import { getEnv } from 'electron-helper/node/env';
+import { isMacOS } from 'electron-helper/node/os';
 import { resolveCurrentDir } from 'electron-helper/node/path/current';
 import type { UpdaterState } from 'electron-helper/node/updater';
 
 const apiUrl = getEnv('API_URL');
 const preloadPath = resolveCurrentDir(import.meta.url, 'preload.js');
+const shouldUseMacMenu = isMacOS();
 
 function readUpdaterStatus(state: UpdaterState) {
   return state.status;

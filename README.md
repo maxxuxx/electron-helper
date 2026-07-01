@@ -51,6 +51,18 @@ import { loadEnv } from 'electron-helper/node/env';
 loadEnv({ path: '/path/to/.env' });
 ```
 
+### `isMacOS()`, `isWindows()`, `isLinux()`
+
+Checks the current Node platform without importing Electron
+
+```ts
+import { isLinux, isMacOS, isWindows } from 'electron-helper/node/os';
+
+isMacOS();
+isWindows();
+isLinux();
+```
+
 ### `resolveCurrentDir(metaUrl, ...segments)`
 
 Resolves path segments from a module `import.meta.url`.
@@ -84,6 +96,34 @@ import { resolveElectronPath } from 'electron-helper/main/path';
 
 resolveElectronPath('userData', 'settings.json');
 ```
+
+### `createSettingsStore(options)`
+
+Creates a JSON-backed settings store under Electron's `userData` path by default
+
+```ts
+import { createSettingsStore } from 'electron-helper/main/settings';
+
+const settings = createSettingsStore({
+  defaults: () => ({
+    theme       : 'system',
+    useAutoStart: false
+  }),
+  migrate: (raw, defaults) => ({
+    ...defaults,
+    ...(typeof raw === 'object' && raw !== null ? raw : {})
+  })
+});
+
+settings.read();
+settings.update((current) => ({
+  ...current,
+  theme: 'dark'
+}));
+settings.restore();
+```
+
+Use `fileName`, `directory`, or `filePath` when an app needs a different settings file location
 
 ### `createExternalOpenHandler(options)`
 
@@ -270,6 +310,7 @@ await updater.checkForUpdates();
 | `electron-helper/main/path/electron` | Electron app path helpers |
 | `electron-helper/main/shell` | Safe external URL open handler helpers |
 | `electron-helper/main/shell/external` | Focused external URL open handler helper |
+| `electron-helper/main/settings` | JSON-backed Electron settings helpers |
 | `electron-helper/main/state` | Electron runtime state helpers |
 | `electron-helper/main/updater` | Main-process updater bridge helpers |
 | `electron-helper/main/window` | BrowserWindow visibility and focus helpers |
@@ -300,6 +341,7 @@ Both ESM `import` and CommonJS `require` are supported
 - [`electron-helper/main/path/electron`](src/main/path/electron/README.md)
 - [`electron-helper/main/shell`](src/main/shell/README.md)
 - [`electron-helper/main/shell/external`](src/main/shell/external/README.md)
+- [`electron-helper/main/settings`](src/main/settings/README.md)
 - [`electron-helper/main/state`](src/main/state/README.md)
 - [`electron-helper/main/updater`](src/main/updater/README.md)
 - [`electron-helper/main/window`](src/main/window/README.md)

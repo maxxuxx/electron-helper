@@ -6,6 +6,7 @@ Use this entrypoint when you want all currently available main-process helpers f
 
 ```ts
 import {
+  createSettingsStore,
   getEnv,
   isProduction,
   quitWhenAllWindowsClosed,
@@ -24,6 +25,7 @@ import {
 | `app` helpers | `electron-helper/main/app` | App lifecycle helpers |
 | `path` helpers | `electron-helper/main/path` | Electron app path helpers |
 | `shell` helpers | `electron-helper/main/shell` | Safe external URL open handler helpers |
+| `settings` helpers | `electron-helper/main/settings` | JSON-backed Electron settings helpers |
 | `state` helpers | `electron-helper/main/state` | Electron runtime state helpers |
 | `updater` helpers | `electron-helper/main/updater` | Main-process updater bridge helpers |
 | `window` helpers | `electron-helper/main/window` | BrowserWindow visibility and focus helpers |
@@ -35,6 +37,7 @@ import { app, BrowserWindow } from 'electron';
 import {
   centerWindow,
   createExternalOpenHandler,
+  createSettingsStore,
   isProduction,
   quitWhenAllWindowsClosed,
   registerUpdaterBridge,
@@ -57,6 +60,11 @@ registerUpdaterBridge({
 
 const apiUrl = getEnv('API_URL');
 const preload = resolveCurrentDir(import.meta.url, 'preload.js');
+const settings = createSettingsStore({
+  defaults: () => ({
+    theme: 'system'
+  })
+});
 
 mainWindow = new BrowserWindow({
   show: false,
@@ -68,6 +76,7 @@ mainWindow = new BrowserWindow({
 centerWindow(mainWindow, {
   size: { width: 1000, height: 700 }
 });
+settings.read();
 setWindowShowWhenReady(mainWindow);
 
 mainWindow.webContents.setWindowOpenHandler(
@@ -91,6 +100,7 @@ Prefer direct subpath imports when a file only needs one module
 import { setSingleInstance } from 'electron-helper/main/app';
 import { resolveAppPath } from 'electron-helper/main/path';
 import { createExternalOpenHandler } from 'electron-helper/main/shell';
+import { createSettingsStore } from 'electron-helper/main/settings';
 import { isProduction } from 'electron-helper/main/state';
 import { registerUpdaterBridge } from 'electron-helper/main/updater';
 import { centerWindow, focusWindow } from 'electron-helper/main/window';

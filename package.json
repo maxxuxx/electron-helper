@@ -1,6 +1,6 @@
 {
   "name": "electron-helper",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Small helpers for Electron apps and modules.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -52,6 +52,11 @@
       "import": "./dist/main/shell/external/index.js",
       "require": "./dist/main/shell/external/index.cjs"
     },
+    "./main/settings": {
+      "types": "./dist/main/settings/index.d.ts",
+      "import": "./dist/main/settings/index.js",
+      "require": "./dist/main/settings/index.cjs"
+    },
     "./main/state": {
       "types": "./dist/main/state/index.d.ts",
       "import": "./dist/main/state/index.js",
@@ -96,6 +101,11 @@
       "types": "./dist/node/env/read/index.d.ts",
       "import": "./dist/node/env/read/index.js",
       "require": "./dist/node/env/read/index.cjs"
+    },
+    "./node/os": {
+      "types": "./dist/node/os/index.d.ts",
+      "import": "./dist/node/os/index.js",
+      "require": "./dist/node/os/index.cjs"
     },
     "./node/path": {
       "types": "./dist/node/path/index.d.ts",
