@@ -2,23 +2,28 @@
 
 Runtime state helpers for Electron main processes
 
-This module currently exposes a single helper for checking whether the app is running from a packaged Electron build
+This module exposes helpers for reading Electron app runtime state and metadata
 
 ## Exports
 
 | Export | Kind | Description |
 | --- | --- | --- |
+| `getVersion()` | Function | Returns the current Electron app version |
 | `isProduction()` | Function | Returns whether Electron is running from a packaged app |
 
 ## Usage
 
 ```ts
-import { isProduction } from 'electron-helper/main/state';
+import { getVersion, isProduction } from 'electron-helper/main/state';
+
+const appVersion = getVersion();
 
 if (!isProduction()) {
   mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
 ```
+
+`getVersion` returns `electron.app.getVersion()`
 
 `isProduction` returns `electron.app.isPackaged`
 

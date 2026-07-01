@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 const electronApp = vi.hoisted(() => ({
+  getVersion: vi.fn(() => '0.0.0'),
   isPackaged: false
 }));
 
@@ -8,10 +9,14 @@ vi.mock('electron', () => ({
   app: electronApp
 }));
 
-import { isProduction as isProductionFromRoot } from '../src/index.js';
-import { isProduction } from '../src/main/index.js';
+import {
+  getVersion as getVersionFromRoot,
+  isProduction as isProductionFromRoot
+} from '../src/index.js';
+import { getVersion, isProduction } from '../src/main/index.js';
 
 beforeEach(() => {
+  electronApp.getVersion.mockReturnValue('0.0.0');
   electronApp.isPackaged = false;
   process.env.NODE_ENV = 'development';
 });
@@ -30,12 +35,20 @@ describe('main process helpers', () => {
     expect(isProduction()).toBe(false);
   });
 
+  test('getVersion returns the Electron app version', () => {
+    electronApp.getVersion.mockReturnValue('1.2.3');
+
+    expect(getVersion()).toBe('1.2.3');
+    expect(electronApp.getVersion).toHaveBeenCalledOnce();
+  });
+
   test('main state route exports Electron-backed helpers', async () => {
     const stateModule = await import('#main/state');
 
     electronApp.isPackaged = true;
 
     expect(stateModule.isProduction()).toBe(true);
+    expect(stateModule.getVersion()).toBe('0.0.0');
   });
 
   test('main index re-exports state helpers', async () => {
@@ -43,6 +56,7 @@ describe('main process helpers', () => {
     const mainModule = await import('../src/main/index.js');
 
     expect(mainModule.isProduction).toBe(environmentModule.isProduction);
+    expect(mainModule.getVersion).toBe(environmentModule.getVersion);
   });
 
   test('root export re-exports main process helpers', async () => {
@@ -50,5 +64,7 @@ describe('main process helpers', () => {
 
     expect(rootModule.isProduction).toBe(isProduction);
     expect(isProductionFromRoot).toBe(isProduction);
+    expect(rootModule.getVersion).toBe(getVersion);
+    expect(getVersionFromRoot).toBe(getVersion);
   });
 });

@@ -8,6 +8,7 @@ Use this entrypoint when you want all currently available main-process helpers f
 import {
   createSettingsStore,
   getEnv,
+  getVersion,
   isProduction,
   quitWhenAllWindowsClosed,
   registerUpdaterBridge,
@@ -38,6 +39,7 @@ import {
   centerWindow,
   createExternalOpenHandler,
   createSettingsStore,
+  getVersion,
   isProduction,
   quitWhenAllWindowsClosed,
   registerUpdaterBridge,
@@ -101,7 +103,7 @@ import { setSingleInstance } from 'electron-helper/main/app';
 import { resolveAppPath } from 'electron-helper/main/path';
 import { createExternalOpenHandler } from 'electron-helper/main/shell';
 import { createSettingsStore } from 'electron-helper/main/settings';
-import { isProduction } from 'electron-helper/main/state';
+import { getVersion, isProduction } from 'electron-helper/main/state';
 import { registerUpdaterBridge } from 'electron-helper/main/updater';
 import { centerWindow, focusWindow } from 'electron-helper/main/window';
 import { setUseDevTools } from 'electron-helper/main/window/devtools';

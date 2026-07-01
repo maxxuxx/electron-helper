@@ -20,6 +20,7 @@ describe('package exports', () => {
     expect(packageJson.exports).toHaveProperty('./node/env/load');
     expect(packageJson.exports).toHaveProperty('./node/env/read');
     expect(packageJson.exports).toHaveProperty('./node/os');
+    expect(packageJson.exports).toHaveProperty('./node/os/hardware');
     expect(packageJson.exports).toHaveProperty('./node/path');
     expect(packageJson.exports).toHaveProperty('./node/path/current');
     expect(packageJson.exports).toHaveProperty('./node/path/resources');

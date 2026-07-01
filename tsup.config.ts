@@ -22,6 +22,7 @@ export default defineConfig({
     'node/env/index': 'src/node/env/index.ts',
     'node/env/load/index': 'src/node/env/load/index.ts',
     'node/env/read/index': 'src/node/env/read/index.ts',
+    'node/os/hardware/index': 'src/node/os/hardware/index.ts',
     'node/os/index': 'src/node/os/index.ts',
     'node/path/index': 'src/node/path/index.ts',
     'node/path/current/index': 'src/node/path/current/index.ts',

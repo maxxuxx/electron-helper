@@ -15,14 +15,23 @@ npm install electron-helper
 Use the `main` subpath from Electron's main process:
 
 ```ts
-import { isProduction } from 'electron-helper/main/state';
+import { getVersion, isProduction } from 'electron-helper/main/state';
 
+console.log(getVersion());
 console.log(isProduction());
 ```
 
 This package is intended for Electron apps. It does not install Electron for consumers; use it from an Electron project.
 
 ## API
+
+### `getVersion()`
+
+Returns the current Electron app version from `app.getVersion()`
+
+```ts
+getVersion();
+```
 
 ### `isProduction()`
 
@@ -62,6 +71,21 @@ isMacOS();
 isWindows();
 isLinux();
 ```
+
+### `getHardwareUuid(options?)`, `requireHardwareUuid(options?)`
+
+Reads the raw OS-provided hardware UUID from Node-compatible Electron code without importing Electron
+
+```ts
+import { getHardwareUuid, requireHardwareUuid } from 'electron-helper/node/os/hardware';
+
+const hardwareUuid = await getHardwareUuid();
+const requiredHardwareUuid = await requireHardwareUuid();
+```
+
+`getHardwareUuid()` returns `undefined` when the platform is unsupported, the OS command fails, the Linux sysfs file is unreadable, or the UUID output is invalid
+
+Windows uses PowerShell CIM first and falls back to WMIC, macOS reads `IOPlatformUUID` from `ioreg`, and Linux reads `/sys/class/dmi/id/product_uuid`
 
 ### `resolveCurrentDir(metaUrl, ...segments)`
 
